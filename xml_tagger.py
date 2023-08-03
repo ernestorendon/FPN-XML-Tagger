@@ -8,29 +8,22 @@ sys.dont_write_bytecode = True
 
 # Library of keyword Filenames we're looking for, as well as database of every county's FPN code
 county_codes = {
-"Charlotte.xml": "273", 
-"Collier.xml": "272", 
-"Hillsborough.xml": "275", 
-"Lee.xml": "271",
-"Manatee.xml": "270", 
-"Orange.xml": "278", 
-"Pasco.xml": "276", 
-"Pinellas.xml": "274",
-"Polk.xml": "277", 
-"Sarasota.xml": "134", 
-"Flagler.xml": "301", 
-"Volusia.xml": "302",
-"Sarasota Observer.xml": "408", 
-"Longboat.xml": "409", 
-"East County.xml": "410"
+    "Charlotte.xml": "273", 
+    "Collier.xml": "272", 
+    "Hillsborough.xml": "275", 
+    "Lee.xml": "271",
+    "Manatee.xml": "270", 
+    "Orange.xml": "278", 
+    "Pasco.xml": "276", 
+    "Pinellas.xml": "274",
+    "Polk.xml": "277", 
+    "Sarasota.xml": "134", 
+    "Flagler.xml": "301", 
+    "Volusia.xml": "302",
+    "Sarasota Observer.xml": "408", 
+    "Longboat.xml": "409", 
+    "East County.xml": "410"
 }
-
-# county_filenames = (
-# "Charlotte.xml", "Collier.xml", "Hillsborough.xml", "Lee.xml", 
-# "Manatee.xml", "Orange.xml", "Pasco.xml", "Pinellas.xml", "Polk.xml", 
-# "Sarasota.xml", "Flagler.xml", "Volusia.xml", "Sarasota Observer.xml", 
-# "Longboat.xml", "East County.xml"
-# )
 
 # This function will handle writing of new layout XML file (only containing the layout object) in the new directory, on root of user-provided directory
 # Will require the PATH, NAME of matching XML file, and user-provided month, day and year
@@ -80,9 +73,9 @@ def file_writer(old_file, old_location, county_files, file_month, file_day, file
     while old_file_line != '':
     
     	# Removing username and password portion of XML files by ignoring input and not writing to new file
-    	if (old_file_line == '  <username>gulfcoast</username>\n') or (old_file_line == '  <password>legals</password>\n') or (old_file_line == '  <username>ObserverMediaGroup</username>\n'):
-    		old_file_line = old_file_object.readline()
-    		continue
+    	# if (old_file_line == '  <username>gulfcoast</username>\n') or (old_file_line == '  <password>legals</password>\n') or (old_file_line == '  <username>ObserverMediaGroup</username>\n'):
+    	# 	old_file_line = old_file_object.readline()
+    	# 	continue
     		
         # Copy info to NEW XML file, line by line
         new_file_object.write(old_file_line)
@@ -125,7 +118,7 @@ def file_checker(user_directory):
 
                 # Function will create new XML file with ONLY the layout tag, and place it within the newly created directory
                 layout_file_writer(tag_dest_folder, county_files, file_month, file_day, file_year)
-                
+
                 # Function will create copy of old XML file, removing the deprecated username/password tags at top of file
                 file_writer(old_XML, old_location, county_files, file_month, file_day, file_year)
 
@@ -137,7 +130,7 @@ def read_args():
         print("Usage: python -m XML_Auto_Tagger_ALPHA [directory]")
         exit()
     else:
-        return{
+        return {
             "live_directory": sys.argv[1]
         }
 
