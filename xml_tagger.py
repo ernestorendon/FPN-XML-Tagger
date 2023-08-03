@@ -1,14 +1,4 @@
 # Ernesto Rendon
-# June 20, 2022 10:35:01 PM
-
-# Program compares filenames located in directories/subdirs against list of potential matches.
-# If a match is found, then the match is duplicated and manipulated into a new file.
-# This new dupe file is properly named, has its username/password fields removed, and is placed in the same dir as the original match.
-
-# At the same time, another XML file is generated in a new dir on the root of the user-provided folder.
-# This other XML file (solo layout file) has the same proper name as before, but only contains the single layout object 
-# They need to be separated in order to have the same exact name and avoid duplicate name error
-
 
 # These libraries import necessary functions
 import os
@@ -18,25 +8,38 @@ sys.dont_write_bytecode = True
 
 # Library of keyword Filenames we're looking for, as well as database of every county's FPN code
 county_codes = {
-"Charlotte": "273", "Collier": "272", "Hillsborough": "275", "Lee": "271",
-"Manatee": "270", "Orange": "278", "Pasco": "276", "Pinellas": "274",
-"Polk": "277", "Sarasota": "134", "Flagler": "301", "Volusia": "302",
-"Sarasota Observer": "408", "Longboat": "409", "East County": "410"
+"Charlotte.xml": "273", 
+"Collier.xml": "272", 
+"Hillsborough.xml": "275", 
+"Lee.xml": "271",
+"Manatee.xml": "270", 
+"Orange.xml": "278", 
+"Pasco.xml": "276", 
+"Pinellas.xml": "274",
+"Polk.xml": "277", 
+"Sarasota.xml": "134", 
+"Flagler.xml": "301", 
+"Volusia.xml": "302",
+"Sarasota Observer.xml": "408", 
+"Longboat.xml": "409", 
+"East County.xml": "410"
 }
-county_filenames = (
-"Charlotte.xml", "Collier.xml", "Hillsborough.xml", "Lee.xml", 
-"Manatee.xml", "Orange.xml", "Pasco.xml", "Pinellas.xml", "Polk.xml", 
-"Sarasota.xml", "Flagler.xml", "Volusia.xml", "Sarasota Observer.xml", 
-"Longboat.xml", "East County.xml"
-)
+
+# county_filenames = (
+# "Charlotte.xml", "Collier.xml", "Hillsborough.xml", "Lee.xml", 
+# "Manatee.xml", "Orange.xml", "Pasco.xml", "Pinellas.xml", "Polk.xml", 
+# "Sarasota.xml", "Flagler.xml", "Volusia.xml", "Sarasota Observer.xml", 
+# "Longboat.xml", "East County.xml"
+# )
 
 # This function will handle writing of new layout XML file (only containing the layout object) in the new directory, on root of user-provided directory
 # Will require the PATH, NAME of matching XML file, and user-provided month, day and year
-def layout_file_writer(new_location, old_county, file_month, file_day, file_year):
+def layout_file_writer(new_location, county_files, file_month, file_day, file_year):
     
     # Open new file, which will only contain layout notice object
-    solo_xml_file = os.path.join(new_location, "fpn_upload_" + county_codes[old_county] + "." + file_year + file_month + file_day + ".xml")
-
+    solo_xml_file = os.path.join(new_location, "fpn_upload_" + county_codes[county_files] + "." + file_year + file_month + file_day + ".xml")
+    
+    old_county = county_files.rstrip(".xml")
 
     # Create new file with county code that matches name via dictionary lookup
     new_solo_layout_xml = open(solo_xml_file, "w")
@@ -59,13 +62,12 @@ def layout_file_writer(new_location, old_county, file_month, file_day, file_year
 
 
 # This function takes in old XML, and delivers a properly named copy, with the depricated username/password fields removed
-def file_writer(old_file, old_location, old_county, file_month, file_day, file_year):
+def file_writer(old_file, old_location, county_files, file_month, file_day, file_year):
     
 
-    new_file_ALPHA = os.path.join(old_location, "fpn_upload_" + county_codes[old_county] + "." + file_year + file_month + file_day + ".xml")
+    new_file_ALPHA = os.path.join(old_location, "fpn_upload_" + county_codes[county_files] + "." + file_year + file_month + file_day + ".xml")
 
-
-    # # Create new file with county code that matches name via dictionary lookup
+    # Create new file with county code that matches name via dictionary lookup
     new_file_object = open(new_file_ALPHA, "w")
 
 
@@ -101,29 +103,32 @@ def file_checker(user_directory):
     file_year = str(raw_input("Please input the year of the publication (YYYY): "))
     print
     
-    # FILE SEARCH PARADIGM #1
     # This tries to find matches for XML files that exist in all dirs and subdirs of user provided directory
     for root, dirnames, files in os.walk(user_directory):
         for county_files in files:
-            for potential_matches in county_filenames:
-                if county_files == potential_matches:
-                    
-                    # If any file is a match against the pre-determined naming conventions, trigger a new file in that location, 
-                    old_XML = os.path.join(root, county_files)
-                    old_location = old_XML.rstrip(county_files)
-                    old_county = county_files.rstrip(".xml")
-                    
-                    # Creates new directory at the root-level of user-provided folder 
-                    tag_dest_folder = os.path.join(user_directory,"layouts")
-                    if not os.path.exists(tag_dest_folder):
-                    	os.mkdir(tag_dest_folder)
-                    
-                    # Function will create new XML file with ONLY the layout tag, and place it within the newly created directory
-                    layout_file_writer(tag_dest_folder, old_county, file_month, file_day, file_year)
+            if county_files in county_codes:
+                
+                # If any file is a match against the pre-determined naming conventions, trigger a new file in that location, 
+                old_XML = os.path.join(root, county_files)
 
-                    # Function will create copy of old XML file, removing the deprecated username/password tags at top of file
-                    file_writer(old_XML, old_location, old_county, file_month, file_day, file_year)
-  
+                # Subdirectory that the match was found in
+                old_location = old_XML.rstrip(county_files)
+                
+                # This is the place we'd need to have a choice of whether to use separate or integrated XML PDF layout tags
+                
+                # IF SEPARATE:
+
+                # Creates new directory at the root-level of user-provided folder 
+                tag_dest_folder = os.path.join(user_directory,"layouts")
+                if not os.path.exists(tag_dest_folder):
+                    os.mkdir(tag_dest_folder)
+
+                # Function will create new XML file with ONLY the layout tag, and place it within the newly created directory
+                layout_file_writer(tag_dest_folder, county_files, file_month, file_day, file_year)
+                
+                # Function will create copy of old XML file, removing the deprecated username/password tags at top of file
+                file_writer(old_XML, old_location, county_files, file_month, file_day, file_year)
+
 # If number of command line arguments is less than or greater than 2, program will quit. 
 # Only 1 user-provided CLI argument is necessary for program
 def read_args():
