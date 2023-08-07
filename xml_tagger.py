@@ -164,7 +164,7 @@ def file_checker(user_directory):
 def read_args():
     if len(sys.argv) != 2:
         print("ERROR")
-        print("Usage: python -m XML_Auto_Tagger_ALPHA [directory]")
+        print("Usage: python xml_tagger.py [directory]")
         exit()
     else:
         return {
