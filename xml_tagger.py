@@ -4,8 +4,6 @@
 import os
 import sys
 
-sys.dont_write_bytecode = True
-
 # Counties paired with their respective information
 county_codes = {
     "Manatee.xml" :{
@@ -81,40 +79,12 @@ county_codes = {
     },
 }
 
-# This function will handle writing of new layout XML file (only containing the layout object) in the new directory, on root of user-provided directory
-# Will require the PATH, NAME of matching XML file, and user-provided month, day and year
-# def layout_file_writer(new_location, county_files, file_month, file_day, file_year):
+# This function takes in old XML, and delivers a properly named copy, with respective username/password and respective display ad XML tag at the end
+def file_writer(old_file, old_location, county_file, file_month, file_day, file_year):
     
-#     # Open new file, which will only contain layout notice object
-#     solo_xml_file = os.path.join(new_location, "fpn_upload_" + county_codes[county_files]["ID"] + "." + file_year + file_month + file_day + ".xml")
-    
-#     old_county = county_files.rstrip(".xml")
+    county_name = county_file.rstrip(".xml")
 
-#     # Create new file with county code that matches name via dictionary lookup
-#     new_solo_layout_xml = open(solo_xml_file, "w")
-    
-#     # Write in the notice tag
-#     new_solo_layout_xml.write("<xml>\n")
-#     new_solo_layout_xml.write("  <notice>\n")
-#     new_solo_layout_xml.write("    <subcategory_id>17</subcategory_id>\n")
-#     new_solo_layout_xml.write("    <date>" + file_month + "/" + file_day + "/" + file_year + "</date>\n")
-#     new_solo_layout_xml.write("    <text>Business Observer - " + old_county + " " + file_month + "/" + file_day + "/" + file_year + "</text>\n")
-#     new_solo_layout_xml.write("    <image>" + file_year + "-" + file_month + "-" + file_day + "-" + old_county + ".pdf</image>\n")
-#     new_solo_layout_xml.write('</notice>\n')
-#     new_solo_layout_xml.write("</xml>\n")
-    
-#     # Close the solo layout file
-#     new_solo_layout_xml.close()
-    
-#     # Confirm to user 
-#     print('New LAYOUT XML file successfully created.')
-
-
-# This function takes in old XML, and delivers a properly named copy, with the depricated username/password fields removed
-def file_writer(old_file, old_location, county_files, file_month, file_day, file_year):
-    
-
-    new_file_ALPHA = os.path.join(old_location, "fpn_upload_" + county_codes[county_files]["ID"] + "." + file_year + file_month + file_day + ".xml")
+    new_file_ALPHA = os.path.join(old_location, "fpn_upload_" + county_codes[county_file]["ID"] + "." + file_year + file_month + file_day + ".xml")
 
     # Create new file with county code that matches name via dictionary lookup
     new_file_object = open(new_file_ALPHA, "w")
@@ -127,21 +97,44 @@ def file_writer(old_file, old_location, county_files, file_month, file_day, file
 
     # While current line is NOT empty
     while old_file_line != '':
-    
-    	# Removing username and password portion of XML files by ignoring input and not writing to new file
-    	# if (old_file_line == '  <username>gulfcoast</username>\n') or (old_file_line == '  <password>legals</password>\n') or (old_file_line == '  <username>ObserverMediaGroup</username>\n'):
-    	# 	old_file_line = old_file_object.readline()
-    	# 	continue
-    		
-        # Copy info to NEW XML file, line by line
+
+        # If its reached the end of text ad notices, append the display ad PDF notice
+        if ("</xml>" in old_file_line):
+            new_file_object.write("  <notice>\n")
+            new_file_object.write("    <subcategory_id>17</subcategory_id>\n")
+            new_file_object.write("    <date>" + file_month + "/" + file_day + "/" + file_year + "</date>\n")
+            new_file_object.write("    <text>Business Observer - " + county_name + " " + file_month + "/" + file_day + "/" + file_year + "</text>\n")
+            new_file_object.write("    <image>" + file_year + "-" + file_month + "-" + file_day + "-" + county_name + ".pdf</image>\n")
+            new_file_object.write('</notice>\n')
+
+        # Typically, default username is "gulfcoast"...
+        elif (("<username>gulfcoast</username>" in old_file_line)):
+            new_file_object.write("<username>" + county_codes[county_file]["username"] + "</username>\n")
+            old_file_line = old_file_object.readline()
+            continue
+
+        # Typically, default password is "legals"...
+        elif ("<password>legals</password>" in old_file_line):
+            new_file_object.write("<password>" + county_codes[county_file]["password"] + "</password>\n")
+            old_file_line = old_file_object.readline()
+            continue
+
+        # Some files default for some reason is ObserverMediaGroup, and those files also don't have a password line in the OG XML
+        elif ("<username>ObserverMediaGroup</username>" in old_file_line):
+            new_file_object.write("<username>" + county_codes[county_file]["username"] + "</username>\n")
+            new_file_object.write("<password>" + county_codes[county_file]["password"] + "</password>\n")
+            old_file_line = old_file_object.readline()
+            continue
+
+        # Otherwise, copy info to NEW XML file, line by line
         new_file_object.write(old_file_line)
         old_file_line = old_file_object.readline()
-    
+
     old_file_object.close()
     new_file_object.close()
     
     # Confirm to user 
-    print('New XML file successfully created.\n')
+    print('New XML file successfully created.')
 
 
 # This function handles checking of files against potential matches and initializes the publication date once per program-run
@@ -162,18 +155,6 @@ def file_checker(user_directory):
 
                 # Subdirectory that the match was found in
                 old_location = old_XML.rstrip(county_file)
-                
-                # This is the place we'd need to have a choice of whether to use separate or integrated XML PDF layout tags
-                
-                # IF SEPARATE:
-
-                # Creates new directory at the root-level of user-provided folder 
-                tag_dest_folder = os.path.join(user_directory,"layouts")
-                if not os.path.exists(tag_dest_folder):
-                    os.mkdir(tag_dest_folder)
-
-                # Function will create new XML file with ONLY the layout tag, and place it within the newly created directory
-                # layout_file_writer(tag_dest_folder, county_file, file_month, file_day, file_year)
 
                 # Function will create copy of old XML file, removing the deprecated username/password tags at top of file
                 file_writer(old_XML, old_location, county_file, file_month, file_day, file_year)
