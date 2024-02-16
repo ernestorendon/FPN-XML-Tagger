@@ -140,9 +140,9 @@ def file_writer(old_file, old_location, county_file, file_month, file_day, file_
 # This function handles checking of files against potential matches and initializes the publication date once per program-run
 def file_checker(user_directory):
 
-    file_month = str(raw_input("Please input the month of the publication (MM): "))
-    file_day = str(raw_input("Please input the day of the publication (DD): "))
-    file_year = str(raw_input("Please input the year of the publication (YYYY): "))
+    file_month = str(input("Please input the month of the publication (MM): "))
+    file_day = str(input("Please input the day of the publication (DD): "))
+    file_year = str(input("Please input the year of the publication (YYYY): "))
     print
     
     # This tries to find matches for XML files that exist in all dirs and subdirs of user provided directory
